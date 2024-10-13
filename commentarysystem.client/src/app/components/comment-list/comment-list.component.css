@@ -1,0 +1,44 @@
+.comment-list {
+  margin: 20px 0;
+  text-align: center; /* Center content inside the comment list */
+}
+
+.pagination-controls {
+  display: flex;                  /* Use Flexbox for alignment */
+  justify-content: center;        /* Center the items */
+  align-items: center;            /* Center items vertically */
+  margin-top: 20px;              /* Space above the pagination */
+}
+
+.pagination {
+  list-style: none;               /* Remove default list styling */
+  padding: 0;                     /* Remove default padding */
+  display: flex;                  /* Use Flexbox for pagination items */
+  gap: 10px;                      /* Add space between buttons */
+}
+
+.page-item {
+  border: 1px solid #007bff;     /* Border for buttons */
+  border-radius: 5px;            /* Rounded corners */
+  overflow: hidden;               /* Prevent content overflow */
+}
+
+.page-link {
+  display: block;                 /* Display as block for full clickable area */
+  padding: 10px 15px;            /* Padding for buttons */
+  text-decoration: none;          /* Remove underline from links */
+  color: #007bff;                /* Link color */
+  background-color: white;       /* Background color */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover */
+}
+
+.page-link:hover {
+  background-color: #007bff;     /* Change background on hover */
+  color: white;                  /* Change text color on hover */
+}
+
+.page-item.disabled .page-link {
+  color: #ccc;                   /* Gray color for disabled buttons */
+  pointer-events: none;          /* Prevent clicks on disabled buttons */
+  background-color: #f8f9fa;    /* Light background for disabled */
+}

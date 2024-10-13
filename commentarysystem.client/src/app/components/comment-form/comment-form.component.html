@@ -1,0 +1,95 @@
+<div class="user-input-form">
+  <h2>User Input Form</h2>
+
+  <form #userForm="ngForm" (ngSubmit)="onSubmit(userForm)">
+    <!-- Username Field -->
+    <div class="form-group">
+      <label for="username">User Name:</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        required
+        pattern="[A-Za-z0-9]+"
+        class="form-control"
+        [(ngModel)]="username"
+      />
+      <div *ngIf="userForm.controls['username']?.invalid && (userForm.controls['username']?.['touched'] || userForm.controls['username']?.dirty)" class="error">
+        <small *ngIf="userForm.controls['username']?.errors?.['required']">User Name is required.</small>
+        <small *ngIf="userForm.controls['username']?.errors?.['pattern']">Only letters and numbers are allowed.</small>
+      </div>
+    </div>
+
+    <!-- Email Field -->
+    <div class="form-group">
+      <label for="email">E-mail:</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        [(ngModel)]="email"
+        class="form-control"
+      />
+      <div *ngIf="userForm.controls['email']?.invalid && (userForm.controls['email']?.['touched'] || userForm.controls['email']?.dirty)" class="error">
+        <small *ngIf="userForm.controls['email']?.errors?.['required']">E-mail is required.</small>
+        <small *ngIf="userForm.controls['email']?.errors?.['email']">Invalid e-mail format.</small>
+      </div>
+    </div>
+
+    <!-- Home Page Field (optional) -->
+    <div class="form-group">
+      <label for="homepage">Home Page (optional):</label>
+      <input
+        type="url"
+        id="homepage"
+        name="homepage"
+        [(ngModel)]="homepage"
+        class="form-control"
+      />
+      <div *ngIf="userForm.controls['homepage']?.invalid && (userForm.controls['homepage']?.['touched'] || userForm.controls['homepage']?.dirty)" class="error">
+        <small *ngIf="userForm.controls['homepage']?.errors?.['url']">Please enter a valid URL.</small>
+      </div>
+    </div>
+
+    <!-- CAPTCHA Field -->
+    <div class="form-group">
+      <label for="captcha">CAPTCHA:</label>
+      <div class="captcha-container">
+        <canvas id="captchaCanvas"></canvas>
+        <button type="button" (click)="generateCaptcha()">Refresh</button>
+      </div>
+      <input
+        type="text"
+        id="captcha"
+        name="captcha"
+        required
+        [(ngModel)]="captchaInput"
+        class="form-control"
+      />
+      <div *ngIf="captchaInput && captchaInput !== captchaCode" class="error">
+        <small>CAPTCHA is incorrect.</small>
+      </div>
+    </div>
+
+    <!-- Text Field -->
+    <div class="form-group">
+      <label for="text">Text:</label>
+      <textarea
+        id="text"
+        name="text"
+        required
+        [(ngModel)]="text"
+        class="form-control"
+        rows="5"
+        (input)="sanitizeInput($event)"
+      ></textarea>
+      <div *ngIf="userForm.controls['text']?.invalid && (userForm.controls['text']?.['touched'] || userForm.controls['text']?.dirty)" class="error">
+        <small *ngIf="userForm.controls['text']?.errors?.['required']">Text is required.</small>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Submit</button>
+  </form>
+</div>

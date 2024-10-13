@@ -1,0 +1,47 @@
+<div class="comment-list">
+  <h3>Comments</h3>
+
+  <!-- Sort By Options -->
+  <div class="comment-sort">
+    <label for="sortBy">Sort By:</label>
+    <select id="sortBy" [(ngModel)]="sortBy">
+      <option value="email">Email</option>
+      <option value="username">UserName</option>
+      <option value="date">Date Created</option>
+    </select>
+
+    <label for="sortOrder">Order:</label>
+    <select id="sortOrder" [(ngModel)]="sortOrder">
+      <option value="desc">Descending</option>
+      <option value="asc">Ascending</option>
+    </select>
+
+    <button (click)="applySort()">Apply</button>
+  </div>
+
+  <!-- List of Comments -->
+  <div *ngFor="let comment of comments">
+    <app-comment [comment]="comment"></app-comment>
+  </div>
+
+  <!-- Pagination Controls -->
+  <nav aria-label="Comments Pagination" class="pagination-controls">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="changePage(currentPage - 1)" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span> Previous
+        </a>
+      </li>
+      <li class="page-item">
+        <span class="page-link">
+          Page {{ currentPage }}
+        </span>
+      </li>
+      <li class="page-item" [class.disabled]="isNextButtonDisabled">
+        <a class="page-link" (click)="changePage(currentPage + 1)" aria-label="Next">
+          Next <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

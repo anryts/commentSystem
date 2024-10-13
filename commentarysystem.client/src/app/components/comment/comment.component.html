@@ -1,0 +1,57 @@
+<div class="comment-container">
+  <div class="comment-box">
+    <div class="comment-header">
+      <strong class="comment-username">{{ comment?.userName }}</strong>
+      <span class="comment-date">{{ comment?.createdAt | date: 'short' }}</span>
+    </div>
+
+    <!-- Text with event to capture highlighted text -->
+    <p class="comment-body" (mouseup)="highlightText()">{{ comment?.text }}</p>
+
+    <button (click)="toggleReplyForm()">Reply</button>
+
+    <!-- Reply Form (appears when Reply button is clicked) -->
+    <div *ngIf="isReplyFormVisible">
+      <app-reply-form [selectedText]="selectedText" [parentCommentId]="comment?.commentId"></app-reply-form>
+    </div>
+
+    <!-- Display Uploaded Files -->
+    <div *ngIf="comment?.files?.length">
+      <h4>Uploaded Files:</h4>
+      <!-- Display images in a row -->
+      <div class="image-gallery">
+        <!-- Iterate over each file -->
+        <div *ngFor="let file of comment?.files" class="image-item">
+          <!-- For images -->
+          <div *ngIf="file.fileType === 'image/jpeg'">
+            <img
+              [src]="'data:image/jpeg;base64,' + file.content"
+              alt="Uploaded Image"
+              class="thumbnail-large"
+              (click)="openModal(file.content)"/>
+          </div>
+
+          <!-- For text files (if applicable in the future) -->
+          <div *ngIf="file.fileType === 'text/plain'">
+            <a [href]="'data:text/plain;base64,' + file.content" [download]="file.fileName">
+              Download {{ file.fileName }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display child comments -->
+    <div class="child-comments" *ngIf="comment?.replies">
+      <div *ngFor="let childComment of comment?.replies">
+        <app-comment [comment]="childComment"></app-comment>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <app-image-modal
+    [isOpen]="isModalOpen"
+    [imageContent]="selectedImageContent"
+    (close)="closeModal()"></app-image-modal>
+</div>

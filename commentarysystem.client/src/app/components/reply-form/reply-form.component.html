@@ -1,0 +1,128 @@
+<div class="reply-form">
+  <h3>Reply to Comment</h3>
+
+  <!-- Quoted Text (if any selected) -->
+  <div *ngIf="selectedTexts.length > 0" class="quoted-text">
+    <blockquote *ngFor="let text of selectedTexts">{{ text.selectedText }}</blockquote>
+  </div>
+
+  <!-- HTML Toolbar for inserting HTML tags -->
+  <div class="toolbar">
+    <button type="button" (click)="insertTag('i')">Italic</button>
+    <button type="button" (click)="insertTag('strong')">Bold</button>
+    <button type="button" (click)="insertTag('code')">Code</button>
+    <button type="button" (click)="insertLink()">Link</button>
+  </div>
+
+  <form #replyForm="ngForm" (ngSubmit)="onSubmit(replyForm)">
+    <!-- Username Field -->
+    <div class="form-group">
+      <label for="username">User Name:</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        required
+        pattern="[A-Za-z0-9]+"
+        [(ngModel)]="username"
+        class="form-control"
+      />
+      <div *ngIf="replyForm.controls['username']?.invalid && (replyForm.controls['username']?.['touched'] || replyForm.controls['username']?.dirty)" class="error">
+        <small *ngIf="replyForm.controls['username']?.errors?.['required']">User Name is required.</small>
+        <small *ngIf="replyForm.controls['username']?.errors?.['pattern']">Only letters and numbers are allowed.</small>
+      </div>
+    </div>
+
+    <!-- Email Field -->
+    <div class="form-group">
+      <label for="email">E-mail:</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        [(ngModel)]="email"
+        class="form-control"
+      />
+      <div *ngIf="replyForm.controls['email']?.invalid && (replyForm.controls['email']?.['touched'] || replyForm.controls['email']?.dirty)" class="error">
+        <small *ngIf="replyForm.controls['email']?.errors?.['required']">E-mail is required.</small>
+        <small *ngIf="replyForm.controls['email']?.errors?.['email']">Invalid e-mail format.</small>
+      </div>
+    </div>
+
+    <!-- Reply Text Field (with Quotes) -->
+    <div class="form-group">
+      <label for="replyText">Reply:</label>
+      <textarea
+        id="replyText"
+        name="replyText"
+        required
+        [(ngModel)]="replyText"
+        class="form-control"
+        rows="5"
+        (input)="onTextChange()"
+      ></textarea>
+      <div *ngIf="replyForm.controls['replyText']?.invalid && (replyForm.controls['replyText']?.['touched'] || replyForm.controls['replyText']?.dirty)" class="error">
+        <small *ngIf="replyForm.controls['replyText']?.errors?.['required']">Reply text is required.</small>
+      </div>
+
+      <!-- Display error if invalid XHTML tags are detected -->
+      <div *ngIf="!validateReplyText()" class="error">
+        <small>The reply contains invalid or improperly closed HTML tags.</small>
+      </div>
+    </div>
+
+    <!-- File Uploads -->
+    <div class="form-group">
+      <label for="imageUpload">Upload Image (max 320x240 pixels):</label>
+      <input type="file" id="imageUpload" (change)="onImageChange($event)" accept=".jpg,.jpeg,.png,.gif" />
+      <div *ngIf="imageError" class="error">{{ imageError }}</div>
+    </div>
+
+    <div class="form-group">
+      <label for="textFileUpload">Upload Text File (max 100 KB):</label>
+      <input type="file" id="textFileUpload" (change)="onTextFileChange($event)" accept=".txt" />
+      <div *ngIf="textFileError" class="error">{{ textFileError }}</div>
+    </div>
+
+    <!-- CAPTCHA Field -->
+    <div class="form-group">
+      <label for="captcha">CAPTCHA:</label>
+      <div class="captcha-container">
+        <canvas id="captchaCanvas" width="150" height="50"></canvas>
+        <button type="button" (click)="generateCaptcha()">Refresh CAPTCHA</button>
+      </div>
+      <input
+        type="text"
+        id="captcha"
+        name="captcha"
+        required
+        [(ngModel)]="captchaInput"
+        class="form-control"
+      />
+      <div *ngIf="captchaInput && captchaInput !== captchaCode" class="error">
+        <small>Incorrect CAPTCHA.</small>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary" [disabled]="replyForm.invalid || captchaInput !== captchaCode || !validateReplyText()">Post Reply</button>
+  </form>
+
+  <!-- Live Preview Section -->
+  <div class="preview-section">
+    <h3>Live Preview:</h3>
+    <div class="preview" [innerHTML]="replyText"></div>
+  </div>
+
+  <!-- Gallery for Uploaded Images -->
+  <div class="gallery">
+    <h3>Image Gallery</h3>
+    <div class="image-previews">
+      <div *ngFor="let image of uploadedImages" class="image-preview">
+        <img [src]="image" alt="Uploaded Image" />
+        <button (click)="removeImage(image)">X</button>
+      </div>
+    </div>
+  </div>
+</div>

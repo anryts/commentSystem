@@ -1,0 +1,8 @@
+﻿<h1 id="tableLabel">Comments</h1>
+<button (click)="toggleFormVisibility()" class="btn btn-primary">Post Comment</button>
+
+<!-- Comment Form (will be shown/hidden based on the button click) -->
+<div *ngIf="isFormVisible">
+  <app-reply-form></app-reply-form>
+</div>
+<app-comment-list/>

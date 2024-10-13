@@ -1,0 +1,6 @@
+@CommentarySystem.Server_HostAddress = http://localhost:5121
+
+GET {{CommentarySystem.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
