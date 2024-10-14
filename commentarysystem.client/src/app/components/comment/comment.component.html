@@ -6,7 +6,7 @@
     </div>
 
     <!-- Text with event to capture highlighted text -->
-    <p class="comment-body" (mouseup)="highlightText()">{{ comment?.text }}</p>
+    <p class="comment-body" (mouseup)="selectedText" [innerHTML]="sanitizedHtml">{{ comment?.text }}</p>
 
     <button (click)="toggleReplyForm()">Reply</button>
 

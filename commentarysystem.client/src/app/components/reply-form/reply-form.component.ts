@@ -11,7 +11,7 @@ import {Reply} from '../../models/comment.model';
 export class ReplyFormComponent implements OnInit {
   @Input() selectedText: string = ''; // Original comment text
   @Input() parentCommentId: number | undefined; // ID of the parent comment
-  allowedHtmlTagsRegex = /^(<a\b[^>]*>.*?<\/a>|<code\b[^>]*>.*?<\/code>|<i\b[^>]*>.*?<\/i>|<strong\b[^>]*>.*?<\/strong>|[^<>]*)*$/;
+  allowedHtmlTagsRegex = /^(>.*|(<a\b[^>]*>.*?<\/a>|<code\b[^>]*>.*?<\/code>|<i\b[^>]*>.*?<\/i>|<strong\b[^>]*>.*?<\/strong>|[^<>]*)*$)/;
   username: string = '';
   email: string = '';
   replyText: string = '';  // Holds the final reply text
@@ -56,8 +56,8 @@ export class ReplyFormComponent implements OnInit {
 
   // Handle image upload
   onImageChange(event: any): void {
-    const files: File[] = Array.from(event.target.files); // Specify that this is an array of File objects
-    this.uploadedImages = []; // Clear previous images
+    const files: File[] = Array.from(event.target.files); // Convert FileList to array
+    this.uploadedImages = []; // Clear previous images before uploading new ones
     this.imageError = ''; // Clear any previous errors
 
     const imagePromises: Promise<File>[] = files.map((file: File): Promise<File> => {
@@ -72,13 +72,11 @@ export class ReplyFormComponent implements OnInit {
             if (img.width > 320 || img.height > 240) {
               try {
                 const resizedFile = await this.resizeImage(img, 320, 240, file.name); // Resize image
-                this.uploadedImages.push(resizedFile); // Add resized file to gallery
                 resolve(resizedFile); // Resolve promise with resized file
               } catch (error) {
-                reject(error); // Reject promise if there’s an error
+                reject(error); // Reject promise if there's an error
               }
             } else {
-              this.uploadedImages.push(file); // Add original file to gallery
               resolve(file); // Resolve promise with original file
             }
           };
@@ -90,7 +88,10 @@ export class ReplyFormComponent implements OnInit {
 
     // Wait for all images to be processed
     Promise.all(imagePromises)
-      .then(() => {
+      .then((processedFiles: File[]) => {
+        // Use `push` to add each processed file to `uploadedImages`
+        processedFiles.forEach((file) => this.uploadedImages.push(file));
+
         alert('Images uploaded successfully:');
         console.log('Uploaded Images:', this.uploadedImages);
       })
@@ -100,12 +101,11 @@ export class ReplyFormComponent implements OnInit {
       });
   }
 
-  // Resize image to max dimensions
+// Resize image to max dimensions
   resizeImage(img: HTMLImageElement, maxWidth: number, maxHeight: number, originalFileName: string): Promise<File> {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-
       if (ctx) {
         const aspectRatio = img.width / img.height;
         if (img.width > img.height) {
@@ -123,19 +123,21 @@ export class ReplyFormComponent implements OnInit {
         canvas.toBlob((blob) => {
           if (blob) {
             // Create a File object from the Blob
-            const resizedFile = new File([blob], originalFileName, { type: 'image/jpeg' }); // Change MIME type as necessary
-            this.uploadedImages.push(resizedFile); // Add to uploaded images array
-            this.imageError = ''; // Clear error
-            console.log('Resized image file:', resizedFile);
-            resolve(resizedFile); // Resolve the promise with the File object
+            const resizedFile = new File([blob], originalFileName, { type: 'image/jpeg' }); // MIME type can be changed
+            console.log('Resized image file:', resizedFile);  // Logging for debugging
+            resolve(resizedFile); // Return the resized file through the promise
           } else {
             reject('Could not create blob from canvas.');
           }
-        }, 'image/jpeg'); // You can change the format here as needed (e.g., 'image/png')
+        }, 'image/jpeg');  // You can specify another format here (e.g., 'image/png')
       } else {
         reject('Could not get canvas context.');
       }
     });
+  }
+
+  removeTextFile(textFile: File): void {
+    this.uploadedTextFiles = this.uploadedTextFiles.filter(file => file !== textFile);
   }
 
   // Remove image from the gallery
@@ -156,7 +158,7 @@ export class ReplyFormComponent implements OnInit {
         reader.onload = (e: any) => {
           const content = e.target.result;
           console.log('Text file uploaded successfully:', content);
-          // Process the text file content as needed
+          this.uploadedTextFiles.push(file);
         };
         reader.readAsText(file);
       }
@@ -223,19 +225,29 @@ export class ReplyFormComponent implements OnInit {
     const tagPattern = /<\/?([a-zA-Z]+)(\s*[^>]*)?>/g; // Regex to match opening and closing tags
     let match;
 
-    while ((match = tagPattern.exec(this.replyText)) !== null) {
-      const tagName = match[1];
+    // Split the reply text into lines
+    const lines = this.replyText.split('\n');
 
-      // If it's a closing tag
-      if (match[0].startsWith('</')) {
-        if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
-          // Unmatched closing tag
-          return false;
+    for (const line of lines) {
+      // Skip lines that start with '>' (quoted lines)
+      if (line.startsWith('>')) {
+        continue; // Ignore quoted lines
+      }
+
+      while ((match = tagPattern.exec(line)) !== null) {
+        const tagName = match[1];
+
+        // If it's a closing tag
+        if (match[0].startsWith('</')) {
+          if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
+            // Unmatched closing tag
+            return false;
+          }
+          tagStack.pop(); // Pop the last opening tag
+        } else if (['a', 'code', 'i', 'strong'].includes(tagName)) {
+          // If it's an opening tag, push it to the stack
+          tagStack.push(tagName);
         }
-        tagStack.pop(); // Pop the last opening tag
-      } else if (['a', 'code', 'i', 'strong'].includes(tagName)) {
-        // If it's an opening tag, push it to the stack
-        tagStack.push(tagName);
       }
     }
 
@@ -268,6 +280,7 @@ export class ReplyFormComponent implements OnInit {
     } else {
       alert('Please fill in all the fields and enter the correct CAPTCHA code.');
     }
+    this.resetForm();
   }
 
   resetForm() {
@@ -278,5 +291,7 @@ export class ReplyFormComponent implements OnInit {
     this.selectedRanges = [];  // Clear selected ranges
     this.selectedTexts = [];  // Clear selected texts
     this.generateCaptcha(); // Reset the CAPTCHA after form submission
+    this.uploadedImages = [];  // Clear uploaded images
+    this.uploadedTextFiles = [];  // Clear uploaded text files
   }
 }

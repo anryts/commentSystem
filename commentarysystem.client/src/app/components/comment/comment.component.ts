@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {Comment} from '../../models/comment.model';
-import {CommentService} from '../../services/comment.service';  // Import the Comment model
+import {CommentService} from '../../services/comment.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-comment',
@@ -14,17 +15,11 @@ export class CommentComponent {
   selectedText: string = '';
   isModalOpen: boolean = false; // Control modal visibility
   selectedImageContent: string | null = null; // Base64 content of the selected image
-  constructor(private commentService: CommentService) {
+  constructor(private commentService: CommentService, private sanitizer: DomSanitizer) {
   }
 
   toggleReplyForm() {
     this.isReplyFormVisible = !this.isReplyFormVisible;
-  }
-
-  // Capture selected text from the comment text
-  captureSelectedText(event: any) {
-    const selection = window.getSelection();
-    this.selectedText = selection ? selection.toString() : '';
   }
 
   openModal(imageContent: string): void {
@@ -37,12 +32,8 @@ export class CommentComponent {
     this.selectedImageContent = null; // Clear the image content
   }
 
-  // Highlight text in comment and insert it into the reply form
-  highlightText() {
-    const selectedText = window.getSelection()?.toString();
-    if (selectedText) {
-      this.selectedText = `> ${selectedText}\n\n` + this.selectedText; // Add selected text as a quote to the reply form
-      this.isReplyFormVisible = true; // Automatically show reply form when text is selected
-    }
+  // Method to sanitize HTML
+  get sanitizedHtml(): any {
+    return this.sanitizer.bypassSecurityTrustHtml(this.comment!.text);
   }
 }

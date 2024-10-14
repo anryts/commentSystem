@@ -11,6 +11,7 @@ public class MainProfile : Profile
     {
         CreateMap<Comment, CommentResponseModel>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
             .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.ChildComments))
             .ForMember(dest => dest.Files, opt => opt.MapFrom(src => src.Files));
 

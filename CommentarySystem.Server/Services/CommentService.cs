@@ -240,6 +240,7 @@ public class CommentService : ICommentService
         var comments = _context.Comment
             .Where(c => c.ParentCommentId == parentCommentId)
             .Include(c => c.ChildComments)
+            .Include(c => c.User)
             .Include(c => c.Files)
             .ToList();
 

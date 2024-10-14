@@ -1,5 +1,6 @@
 using CommentarySystem.Server.Services;
 using CommentarySystem.Server.Services.Interfaces;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Common.Middlewares;
 using WebApplication1.Data;
@@ -14,7 +15,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IFileService, FileService>();
-
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));

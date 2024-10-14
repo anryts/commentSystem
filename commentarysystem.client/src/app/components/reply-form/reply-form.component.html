@@ -1,10 +1,4 @@
 <div class="reply-form">
-  <h3>Reply to Comment</h3>
-
-  <!-- Quoted Text (if any selected) -->
-  <div *ngIf="selectedTexts.length > 0" class="quoted-text">
-    <blockquote *ngFor="let text of selectedTexts">{{ text.selectedText }}</blockquote>
-  </div>
 
   <!-- HTML Toolbar for inserting HTML tags -->
   <div class="toolbar">
@@ -123,6 +117,15 @@
         <img [src]="image" alt="Uploaded Image" />
         <button (click)="removeImage(image)">X</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Uploaded Text Files -->
+  <div class="uploaded-text-files">
+    <h3>Uploaded Text Files</h3>
+    <div *ngFor="let textFile of uploadedTextFiles" class="text-file-preview">
+      <span>{{ textFile.name }}</span>
+      <button (click)="removeTextFile(textFile)">X</button> <!-- Button to remove text file -->
     </div>
   </div>
 </div>

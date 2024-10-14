@@ -1,5 +1,5 @@
 export const environment = {
-  apiBaseUrl: 'https://localhost:7090/api',
+  apiBaseUrl:  'https://commentarysystemserver-app-20241.thankfulcoast-c19eb5bb.australiaeast.azurecontainerapps.io/api',
   apiBaseUrlHttp: 'http://localhost:5121'
 };
 

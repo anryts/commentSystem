@@ -1,5 +1,6 @@
 using CommentarySystem.Server.Model;
 using CommentarySystem.Server.Services.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CommentarySystem.Server.Controllers;
@@ -34,33 +35,15 @@ public class CommentsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostComment([FromForm]ICollection<IFormFile>? files, [FromForm]CommentCreationModel comment)
+    public async Task<IActionResult> PostComment([FromForm] ICollection<IFormFile>? files,
+        [FromForm] CommentCreationModel comment, [FromServices] IValidator<CommentCreationModel> validator)
     {
-        //TODO: add validation by fluent validation
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        await validator.ValidateAndThrowAsync(comment);
 
         await _commentService.AddCommentAsync(comment, files);
         return new OkObjectResult("Comment added successfully");
     }
 
-    // [HttpPost("reply")]
-    // public async Task<IActionResult> PostReply([FromBody] CommentReplyModel comment)
-    // {
-    //     //TODO: add validation by fluent validation
-    //     await _commentService.AddReplyAsync(comment);
-    //     return new OkObjectResult("Reply added successfully");
-    // }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> PutComment([FromBody] CommentUpdateModel model)
-    {
-        //TODO: add validation by fluent validation
-        await _commentService.UpdateCommentAsync(model);
-        return NoContent();
-    }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteComment(int id)
